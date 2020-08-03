@@ -71,47 +71,28 @@ int main(int argc, char** argv) {
 
         //Converting image from BGR to HSV Color space
         Mat hsv;
-        //flip(frame,frame,1);
         cvtColor(frame, hsv, COLOR_BGR2HSV);
 
-        Mat mask1, mask2;
+        Mat mask;
 
-        //SAMPLE FOR RED
-        //Create mask to detect the upper and lower red color
-        //inRange(hsv, Scalar(0, 120, 70), Scalar(10, 255, 255), mask1);
-        //inRange(hsv, Scalar(170, 120, 70), Scalar(180, 255, 255), mask2);
-
-        //ADJUSTED FOR PURPLE 
-        //FIXME: double masks unnecessary, only for red, not causing problems at the moment
-        inRange(hsv, Scalar(122, 120, 70), Scalar(148, 255, 255), mask1);
-        inRange(hsv, Scalar(122, 120, 70), Scalar(128, 255, 255), mask2);
-
-        //Generate final mask
-        mask1 = mask1 + mask2;
-
+        inRange(hsv, Scalar(122, 120, 70), Scalar(148, 255, 255), mask);
+        
         Mat kernel = Mat::ones(3, 3, CV_32F);
-        morphologyEx(mask1, mask1, cv::MORPH_OPEN, kernel);
-        morphologyEx(mask1, mask1, cv::MORPH_DILATE, kernel);
+        morphologyEx(mask, mask, cv::MORPH_OPEN, kernel);
+        morphologyEx(mask, mask, cv::MORPH_DILATE, kernel);
 
-        bitwise_not(mask1, mask2);
-
-        Mat res1, res2, final_output;
-        bitwise_and(frame, frame, res1, mask2);
-        bitwise_and(background, background, res2, mask1);
-        addWeighted(res1, 1, res2, 1, 0, final_output);
-
+        Mat final_output;
+        bitwise_and(frame, frame, final_output, mask);
+        
         imshow("Color Segmentation", final_output);
         waitKey(1);
-
-        // Display the resulting frame
-        //imshow( "Frame", frame );
 
         // Press  ESC on keyboard to exit
         char c = (char)waitKey(25);
         if (c == 27)
             break;
         // Also relese all the mat created in the code to avoid memory leakage.
-        frame.release(), hsv.release(), mask1.release(), mask2.release(), res1.release(), res2.release(), final_output.release();
+        frame.release(), hsv.release(), mask.release(), final_output.release();
 
     }
 
