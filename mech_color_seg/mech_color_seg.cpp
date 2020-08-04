@@ -19,7 +19,6 @@ int main(int argc, char** argv) {
     // FOR CAMERA
     VideoCapture cap;
 
-
     if (parser.has("video")) {
         cap.open(parser.get<String>("video"));
     }
@@ -30,35 +29,26 @@ int main(int argc, char** argv) {
     if (!cap.isOpened()) {
         cout << "Error opening video stream or file" << endl;
         return -1;
-    }
+    } 
 
-    int frame_width = static_cast<int>(cap.get(CAP_PROP_FRAME_WIDTH));
-    printf("%d\n", frame_width);
-    int frame_height = static_cast<int>(cap.get(CAP_PROP_FRAME_HEIGHT));
-    printf("%d\n", frame_height);
-    Size frame_size(frame_width, frame_height);
-    int frames_per_second = 10;
+    int iLastX = -1;
+    int iLastY = -1;
+
+    //Capture a temporary image from the camera
+    Mat imgTmp;
+    cap.read(imgTmp);
+
+    //Create a black image with the size as the camera output
+    Mat imgLines = Mat::zeros(imgTmp.size(), CV_8UC3);;
 
     Mat background;
+
     for (int i = 0; i < 60; i++)
     {
         cap >> background;
     }
 
-    //flip(background,background,1);
-    const String name = "output.avi";
-
-    //VideoWriter oVideoWriter("output.avi", CV_FOURCC('M','P', '4', 'G'), frames_per_second, (288,512), true);
-    //
-    //// If the VideoWriter object is not initialized successfully, exit the program
-    //if (oVideoWriter.isOpened() == false)
-    //{
-    //    cout << "Cannot save the video to a file" << endl;
-    //    cin.get(); //wait for any key press
-    //    return -1;
-    //}
-
-    while (1)
+    while (true)
     {
 
         Mat frame;
@@ -81,10 +71,32 @@ int main(int argc, char** argv) {
         morphologyEx(mask, mask, cv::MORPH_OPEN, kernel);
         morphologyEx(mask, mask, cv::MORPH_DILATE, kernel);
 
+        //NEW BELOW
+        Moments oMoments = moments(mask);
+
+        double dM01 = oMoments.m01;
+        double dM10 = oMoments.m10;
+        double dArea = oMoments.m00;
+
+        if (dArea > 10000) {
+            int posX = dM10 / dArea;
+            int posY = dM01 / dArea;
+
+            if (iLastX >= 0 && iLastY >= 0 && posX >= 0 && posY >= 0)
+            {
+                //Draw a red line from the previous point to the current point
+                line(imgLines, Point(posX, posY), Point(iLastX, iLastY), Scalar(0, 0, 255), 2);
+            }
+
+            iLastX = posX;
+            iLastY = posY;
+
+        }
+
         Mat final_output;
         bitwise_and(frame, frame, final_output, mask);
         
-        imshow("Color Segmentation", final_output);
+        imshow("Color Segmentation", final_output + imgLines);
         waitKey(1);
 
         // Press  ESC on keyboard to exit
