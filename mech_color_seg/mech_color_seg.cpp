@@ -86,6 +86,11 @@ int main(int argc, char** argv) {
             {
                 //Draw a red line from the previous point to the current point
                 line(imgLines, Point(posX, posY), Point(iLastX, iLastY), Scalar(0, 0, 255), 2);
+                
+                char text[100];
+                sprintf_s(text, "x = %d, y = %d", posX, posY);
+
+                putText(imgLines, text, Point(posX, posY), FONT_HERSHEY_PLAIN, 1.0, CV_RGB(0, 255, 0) );
             }
 
             iLastX = posX;
