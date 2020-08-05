@@ -1,3 +1,10 @@
+/*
+Mech: Forward Robotics Color Segmentation
+
+Program tracks purple sphero robot in 2D space. Line is drawn to follow path, current coordinates are displayed.
+Anticipate use for Tag and Maze activities.
+
+*/
 #include "opencv2/opencv.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
@@ -7,6 +14,7 @@ using namespace std;
 using namespace cv;
 
 
+//Add video name in between | | for pre-recorded video input.
 const char* keys = "{ video  |  | Path to the input video file. Skip this argument to capture frames from a camera.}";
 
 
@@ -50,7 +58,6 @@ int main(int argc, char** argv) {
 
     while (true)
     {
-
         Mat frame;
         // Capture frame-by-frame
         cap >> frame;
@@ -65,13 +72,15 @@ int main(int argc, char** argv) {
 
         Mat mask;
 
+        //HSV Range for purple sphero robot
         inRange(hsv, Scalar(122, 120, 70), Scalar(148, 255, 255), mask);
         
+        //Search for purple sphero in frame
         Mat kernel = Mat::ones(3, 3, CV_32F);
         morphologyEx(mask, mask, cv::MORPH_OPEN, kernel);
         morphologyEx(mask, mask, cv::MORPH_DILATE, kernel);
 
-        //NEW BELOW
+        //Locate center of sphero
         Moments oMoments = moments(mask);
 
         double dM01 = oMoments.m01;
@@ -87,6 +96,7 @@ int main(int argc, char** argv) {
                 //Draw a red line from the previous point to the current point
                 line(imgLines, Point(posX, posY), Point(iLastX, iLastY), Scalar(0, 0, 255), 2);
                 
+                //For displaying coordinates on image
                 char text[100];
                 sprintf_s(text, "x = %d, y = %d", posX, posY);
 
@@ -114,11 +124,9 @@ int main(int argc, char** argv) {
 
     }
 
-
     // When everything done, release the video capture object
     cap.release();
-    //oVideoWriter.release();
-
+   
     // Closes all the frames
     destroyAllWindows();
 
