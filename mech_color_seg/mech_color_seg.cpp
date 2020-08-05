@@ -5,6 +5,7 @@ Program tracks purple sphero robot in 2D space. Line is drawn to follow path, cu
 Anticipate use for Tag and Maze activities.
 
 */
+
 #include "opencv2/opencv.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
@@ -13,9 +14,8 @@ Anticipate use for Tag and Maze activities.
 using namespace std;
 using namespace cv;
 
-
 //Add video name in between | | for pre-recorded video input.
-const char* keys = "{ video  |  | Path to the input video file. Skip this argument to capture frames from a camera.}";
+const char* keys = "{ video  | sphero_rolling.mov | Path to the input video file. Skip this argument to capture frames from a camera.}";
 
 
 int main(int argc, char** argv) {
@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
 
     // FOR CAMERA
     VideoCapture cap;
-
+    
     if (parser.has("video")) {
         cap.open(parser.get<String>("video"));
     }
@@ -39,6 +39,11 @@ int main(int argc, char** argv) {
         return -1;
     } 
 
+    //int frame_width = cap.get(CV_CAP_PROP_FRAME_WIDTH);
+    //int frame_height = cap.get(CV_CAP_PROP_FRAME_HEIGHT);
+
+    //VideoWriter video("output.avi", VideoWriter::fourcc('X', '2', '6', '4'), 10, Size(frame_width, frame_height));
+    
     int iLastX = -1;
     int iLastY = -1;
 
@@ -100,7 +105,7 @@ int main(int argc, char** argv) {
                 char text[100];
                 sprintf_s(text, "x = %d, y = %d", posX, posY);
 
-                rectangle(imgLines, Point(0,0), Point(200,50), Scalar(0, 0, 0), CV_FILLED);
+                rectangle(imgLines, Point(0,0), Point(160,50), Scalar(0, 0, 0), CV_FILLED);
                 putText(imgLines, text, Point(0, 50), FONT_HERSHEY_PLAIN, 1.0, CV_RGB(0, 255, 0) );
             }
 
@@ -126,6 +131,7 @@ int main(int argc, char** argv) {
 
     // When everything done, release the video capture object
     cap.release();
+    //video.release();
    
     // Closes all the frames
     destroyAllWindows();
