@@ -90,7 +90,8 @@ int main(int argc, char** argv) {
                 char text[100];
                 sprintf_s(text, "x = %d, y = %d", posX, posY);
 
-                putText(imgLines, text, Point(posX, posY), FONT_HERSHEY_PLAIN, 1.0, CV_RGB(0, 255, 0) );
+                rectangle(imgLines, Point(0,0), Point(200,50), Scalar(0, 0, 0), CV_FILLED);
+                putText(imgLines, text, Point(0, 50), FONT_HERSHEY_PLAIN, 1.0, CV_RGB(0, 255, 0) );
             }
 
             iLastX = posX;
